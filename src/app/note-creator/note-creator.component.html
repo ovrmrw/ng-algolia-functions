@@ -1,0 +1,8 @@
+<form [formGroup]="noteForm" (submit)="onSubmit()" novalidate>
+  <div>ID: {{ noteForm.get('id').value }}</div>
+  <input type="text" formControlName="title">
+  <input type="text" formControlName="author">
+  <input type="text" formControlName="content">
+  <pre>valid: {{ noteForm.valid }}</pre>
+  <button type="submit" [disabled]="!noteForm.valid">SUBMIT</button>
+</form>

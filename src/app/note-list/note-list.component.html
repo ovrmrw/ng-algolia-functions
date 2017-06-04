@@ -1,0 +1,5 @@
+<div *ngIf="notes$ | async; let notes">
+  <div *ngFor="let n of notes">
+    <app-note [noteId]="n.id" [title]="n.title" [author]="n.author" [content]="n.content" (editEvent)="prepareEditNote($event)"></app-note>
+  </div>
+</div>

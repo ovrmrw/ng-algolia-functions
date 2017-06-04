@@ -11,7 +11,7 @@ import { FirebaseService, User } from '../services/firebase.service';
 })
 export class LoginComponent implements OnInit, OnDestroy {
 
-  user$: Observable<User | null>
+  isActive$: Observable<boolean>
   sub: any
 
   constructor(
@@ -20,9 +20,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.user$ = this.firebase.currentUser$
+    this.isActive$ = this.firebase.isActive$
 
-    this.sub = this.user$.subscribe(user => this.router.navigate(['home']))
+    this.sub = this.isActive$
+      .filter(isActive => isActive)
+      .subscribe(() => this.router.navigate(['home']))
   }
 
   ngOnDestroy() {

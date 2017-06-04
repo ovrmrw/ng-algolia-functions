@@ -14,13 +14,12 @@ export class AuthGuard implements CanActivate {
   ) { }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-    return this.firebase.currentUser$
-      .do(user => console.log('AuthGuard:', user))
-      .do(user => {
-        if (!user) {
+    return this.firebase.isActive$
+      .do(isActive => console.log('AuthGuard:', isActive))
+      .do(isActive => {
+        if (!isActive) {
           this.router.navigate(['login'])
         }
       })
-      .map(user => !!user)
   }
 }

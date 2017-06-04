@@ -21,4 +21,12 @@ export class HomeComponent implements OnInit {
     this.firebase.signOut()
     this.router.navigate(['welcome'])
   }
+
+  searchNote() {
+    this.firebase.searchNote('野口')
+      .then(results => {
+        console.log('search results:', results)
+        this.firebase.reloadNotes(...results.noteIds)
+      })
+  }
 }

@@ -1,9 +1,9 @@
 <p>ログインしてください。</p>
 
-<div *ngIf="user$ | async">
+<div *ngIf="isActive$ | async">
   <button (click)="logout()">LOGOUT</button>
 </div>
 
-<div *ngIf="!(user$ | async)">
+<div *ngIf="!(isActive$ | async)">
   <button (click)="login()">LOGIN</button>
 </div>

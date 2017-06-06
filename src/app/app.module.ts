@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HttpModule } from '@angular/http';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '@angular/material';
@@ -31,6 +32,7 @@ import { NoteCreatorComponent } from './note-creator/note-creator.component';
     ReactiveFormsModule,
     BrowserAnimationsModule,
     MaterialModule,
+    HttpModule,
   ],
   providers: [
     FirebaseService,

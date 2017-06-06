@@ -1,5 +1,7 @@
+// tslint:disable:no-console
 import 'rxjs/Rx'
 import { Injectable } from '@angular/core';
+import { Http, RequestOptions, Headers } from '@angular/http';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Subject } from 'rxjs/Subject';
@@ -29,7 +31,9 @@ export class FirebaseService {
 
   editableNote$ = new Subject<Note>()
 
-  constructor() {
+  constructor(
+    private http: Http,
+  ) {
     firebase.initializeApp(config);
 
     this.provider = new firebase.auth.GoogleAuthProvider();
@@ -79,12 +83,20 @@ export class FirebaseService {
 
   reloadNotes(...noteIds: string[]): void {
     if (noteIds && noteIds.length > 0) {
-      Promise
-        .all(noteIds.map(noteId => this.getNoteById(noteId)))
-        .then(notes => {
+      Observable
+        .from(noteIds.map(noteId => this.getNoteById(noteId)))
+        .mergeMap(notes => notes)
+        .scan((p, note) => [...p, note], [])
+        .subscribe(notes => {
           const orderedNotes = lodash.orderBy(notes, 'timestamp', 'desc')
           this.notes$.next(orderedNotes)
         })
+      // Promise
+      //   .all(noteIds.map(noteId => this.getNoteById(noteId)))
+      //   .then(notes => {
+      //     const orderedNotes = lodash.orderBy(notes, 'timestamp', 'desc')
+      //     this.notes$.next(orderedNotes)
+      //   })
     } else {
       this.getNotes()
         .then(notes => {
@@ -158,19 +170,39 @@ export class FirebaseService {
     const subject = new Subject<any>()
     const user = firebase.auth().currentUser
     if (user) {
+      console.time('searchNote')
       await firebase.database().ref('search/' + user.uid).remove()
-      await firebase.database().ref('search/' + user.uid + '/query').set({ keyword })
+      firebase.database().ref('search/' + user.uid + '/query').set({ keyword })
       const ref = firebase.database().ref('search/' + user.uid + '/results')
       ref.on('value', snapshot => {
         if (snapshot && snapshot.val()) {
           const obj = snapshot.val()
           if (obj.hits) {
+            console.timeEnd('searchNote')
             ref.off()
             subject.next(obj)
           }
         }
       })
       return subject.take(1).toPromise()
+    } else {
+      throw new Error('user is not defined.')
+    }
+  }
+
+  async searchNoteApi(keyword: string): Promise<any> {
+    const user = firebase.auth().currentUser
+    if (user) {
+      console.time('searchNoteApi')
+      const endpoint = 'https://us-central1-ng-algorlia-functions.cloudfunctions.net/api/search'
+      const token: string = await user.getIdToken()
+      const headers = new Headers({
+        'Authorization': 'Bearer ' + token
+      })
+      return this.http.post(endpoint, { keyword }, { headers })
+        .do(() => console.timeEnd('searchNoteApi'))
+        .map(res => res.json())
+        .toPromise()
     } else {
       throw new Error('user is not defined.')
     }

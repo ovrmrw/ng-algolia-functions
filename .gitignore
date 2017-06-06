@@ -42,4 +42,5 @@ testem.log
 Thumbs.db
 
 /functions/node_modules
-/functions/index.js
+/functions/*.js
+firebase-debug.log

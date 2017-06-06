@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
   }
 
   searchNote() {
-    this.firebase.searchNote('野口')
+    this.firebase.searchNoteApi('野口')
       .then(results => {
         console.log('search results:', results)
         this.firebase.reloadNotes(...results.noteIds)

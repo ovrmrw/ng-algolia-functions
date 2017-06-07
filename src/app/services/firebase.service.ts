@@ -85,7 +85,7 @@ export class FirebaseService {
     if (noteIds && noteIds.length > 0) {
       Observable
         .from(noteIds.map(noteId => this.getNoteById(noteId)))
-        .mergeMap(notes => notes)
+        .mergeMap(note => note)
         .scan((p, note) => [...p, note], [])
         .subscribe(notes => {
           const orderedNotes = lodash.orderBy(notes, 'timestamp', 'desc')
@@ -107,7 +107,7 @@ export class FirebaseService {
   }
 
   async getNotes(): Promise<Note[]> {
-    const limit = 5
+    const limit = 10
     const user = firebase.auth().currentUser
     if (user) {
       return firebase.database().ref('notes/' + user.uid).orderByChild('timestamp').limitToLast(limit).once('value')
@@ -157,7 +157,6 @@ export class FirebaseService {
           console.log('added note key:', key)
         }
         this.reloadNotes(key)
-        return
       } catch (err) {
         throw err
       }
